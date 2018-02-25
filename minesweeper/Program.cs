@@ -28,39 +28,53 @@ namespace minesweeper
                 sizeAnswer = Console.ReadLine();
             }
 
-            if (boardSize == 1)
-                boardSize = 10;
-            else
-                boardSize = 20;
-
+            
+            /*
+             * Create a Board object and clear the console.
+             * Also set some typical values, like start-position
+             * for the cursor.
+             */
             Console.Clear();
-
-            int br = 0;
+            
+            boardSize = boardSize == 1 ? 10 : 20;
             Board board = new Board(boardSize);
-            foreach (Tile tile in board.GetTiles())
+            Controls cursor = new Controls(boardSize);
+
+            bool GameOver = false;
+            
+            
+            /*
+             * Run the game in a loop until GameOver is set.
+             * Here we print out the Tiles (Board) in the console.
+             * And print print/move the cursor position accordingly
+             * to the users key-presses.
+             */
+            while (!GameOver)
             {
-                if (tile.outer)
-                    Console.Write(" [O] ");
-                else if (tile.value)
-                    Console.Write(" [B] ");
-                else 
-                    Console.Write(" ["+tile.around+"] ");
-
-                br++;
-                if (br == boardSize)
+                Console.Clear();
+                int br = 0;
+                foreach (Tile tile in board.GetTiles())
                 {
-                    Console.WriteLine();
-                    Console.WriteLine();
-                    br = 0;
+                    if (tile.outer)
+                        Console.Write(" [O] ");
+                    else if (tile.value)
+                        Console.Write(" [B] ");
+                    else
+                        Console.Write(" [" + tile.around + "] ");
+
+                    br++;
+                    if (br == boardSize)
+                    {
+                        Console.WriteLine();
+                        Console.WriteLine();
+                        br = 0;
+                    }
                 }
+                
+                Console.SetCursorPosition(cursor.xPosition, cursor.yPosition);
+                ConsoleKey keyPush = Console.ReadKey().Key;
+                cursor.CursorAction(keyPush);
             }
-
-            int yPosition = 0;
-            int xPosition = 2;
-
-            Console.SetCursorPosition(xPosition, yPosition);
-
-
 
             Console.ReadLine();
         }
