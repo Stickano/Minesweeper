@@ -119,7 +119,6 @@ namespace minesweeper
              * along with the complete turned tiles of the board
              */
             Console.Clear();
-            
             int endBr = 0;
             foreach (Tile tile in board.GetTiles())
             {
