@@ -9,6 +9,8 @@ namespace minesweeper
     class Board
     {
         private int boardSize;
+        public int turnedTiles;
+        public int bombAmount;
         private List<Tile> tiles;
         private List<int> bombPositions;
         private Random rand;
@@ -23,6 +25,7 @@ namespace minesweeper
             tiles = new List<Tile>();
             bombPositions = new List<int>();
             boardSize = size;
+            turnedTiles = 0;
             GenerateBoard();
         }
 
@@ -78,6 +81,7 @@ namespace minesweeper
         private void PlaceBombs()
         {
             int amount = boardSize == 10 ? 10 : 80;
+            bombAmount = amount;
 
             while (amount > 0)
             {
@@ -145,31 +149,35 @@ namespace minesweeper
 
         /*
          * Turns over, and show surrounding bombs, for tiles
-         * played by the view. This will also turn over of
-         * surrounding tiles, so they too can show their nearby
-         * bombs.
+         * played by the view. This will also turn over a couple of
+         * surrounding tiles, so they too can show their nearby bombs.
          */
-        public bool TurnTile(int tilePosition)
+        public int  TurnTile(int tilePosition)
         {
-            bool GameOver = false;
+            int GameOver = -1;
             int maxHelp = rand.Next(1,5);
 
             if (tiles[tilePosition].value)
-                GameOver = true;
+                GameOver = 1;
             else if (!tiles[tilePosition].turned )
             {
                 tiles[tilePosition].turned = true;
+                turnedTiles++;
                 foreach (int tp in SurroundingPositions(tilePosition))
                 {
                     if (tiles[tilePosition].outer || maxHelp == 0)
                         break;
                     
-                    if (!tiles[tp].value)
+                    if (!tiles[tp].value && !tiles[tp].marked && !tiles[tp].turned)
                     {
                         tiles[tp].turned = true;
                         maxHelp--;
+                        turnedTiles++;
                     }
                 }
+
+                if (turnedTiles + bombAmount == boardSize * boardSize)
+                    GameOver = 2;
             }
 
             return GameOver;
@@ -182,7 +190,8 @@ namespace minesweeper
          */
         public void MarkTile(int tilePosition)
         {
-            tiles[tilePosition].marked = !tiles[tilePosition].marked;
+            if (!tiles[tilePosition].turned)
+                tiles[tilePosition].marked = !tiles[tilePosition].marked;
         }
 
         

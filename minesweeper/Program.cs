@@ -41,6 +41,7 @@ namespace minesweeper
             Controls cursor = new Controls(boardSize);
 
             bool GameOver = false;
+            bool GameWon = false;
             
             
             /*
@@ -49,18 +50,30 @@ namespace minesweeper
              * And print print/move the cursor position accordingly
              * to the users key-presses.
              */
-            while (!GameOver)
+            while (!GameOver && !GameWon)
             {
                 Console.Clear();
                 
                 int br = 0;
                 foreach (Tile tile in board.GetTiles())
                 {
-                    
+                    Console.ResetColor();
                     if (tile.turned)
-                        Console.Write(" ["+tile.around+"] ");
+                    {
+                        if (tile.around < 2)
+                            Console.ForegroundColor = ConsoleColor.Blue;
+                        else if (tile.around < 4)
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                        else
+                            Console.ForegroundColor = ConsoleColor.Red;
+                        
+                        Console.Write(" [" + tile.around + "] ");
+                    }
                     else if (tile.marked)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Green;
                         Console.Write(" [M] ");
+                    }
                     else
                         Console.Write(" [ ] ");
 
@@ -74,15 +87,24 @@ namespace minesweeper
                 }
 
                 Console.WriteLine();
+                Console.ResetColor();
+                Console.WriteLine(board.turnedTiles + board.bombAmount);
                 Console.WriteLine("Press M to mark tiles. Press Q to quit.");
+                Console.WriteLine("Move with the Arrow-keys and turn tiles with Space.");
                 
                 Console.SetCursorPosition(cursor.xPosition, cursor.yPosition);
                 ConsoleKey keyPush = Console.ReadKey().Key;
                 
                 int keyAction = cursor.CursorAction(keyPush);
                 if (keyAction >= 0)
-                    GameOver = board.TurnTile(keyAction);
-                
+                {
+                    int response = board.TurnTile(keyAction);
+                    if (response == 1)
+                        GameOver = true;
+                    else if (response == 2)
+                        GameWon = true;
+                }
+
                 if (keyPush == ConsoleKey.M)
                     board.MarkTile(cursor.tilePosition);
 
@@ -101,14 +123,25 @@ namespace minesweeper
             int endBr = 0;
             foreach (Tile tile in board.GetTiles())
             {
-                    
-                if (tile.value)
-                    Console.Write(" [B] ");
-                else
-                    Console.Write(" ["+tile.around+"] ");
 
-                
-                
+                if (tile.value)
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkRed;
+                    Console.Write(" [B] ");
+                }
+                else
+                {
+                    if (tile.around < 2)
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                    else if (tile.around < 4)
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                    else
+                        Console.ForegroundColor = ConsoleColor.Red;
+                    
+                    Console.Write(" [" + tile.around + "] ");
+                }
+
+
                 endBr++;
                 if (endBr == boardSize)
                 {
@@ -119,7 +152,17 @@ namespace minesweeper
             }
             
             Console.WriteLine();
-            Console.WriteLine("Game Over! Press any key to exit..");
+            if (GameOver)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Game Over! Press any key to exit..");
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Congratulation. Game Won! Press any key to exit..");
+            }
+
             Console.SetCursorPosition(cursor.xPosition, cursor.yPosition);
             Console.ReadKey();
         }
