@@ -10,5 +10,7 @@ A player can move around with the *Arrow* keys and turn tiles with *Space*. If a
 
 The turned tiles will be colored according to how many bombs are detected nearby. The game uses 3 custom models; Tile, Board and Controls. A Board object will generate a board, with Tile objects, and keep track of bomb placements, turned and marked tiles and so forth. The Controls class is for the user-controls/navigation. 
 
+<p align="center"><img src="https://github.com/Stickano/Minesweeper/blob/master/preview.png"/></p>
+
 ##### Pro Tip!
-The logic makes it so that you never get a bomb in the outer most tiles of the board - Though, no help clearing is available for outer most tiles either. It's a good way to get started with the game though. Just clear the outer most tiles and move towards the center. 
+The logic makes it so that you never get a bomb in the outer most tiles of the board - No help clearing is available for outer most tiles either. It's a good way to get started with the game though. Just clear the outer most tiles and move towards the center. 
