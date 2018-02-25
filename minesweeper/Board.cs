@@ -11,13 +11,15 @@ namespace minesweeper
         private int boardSize;
         private List<Tile> tiles;
         private List<int> bombPositions;
-            
+        private Random rand;
+
         /*
          * Constructor
          *     Sets the size of the Board
          */
         public Board(int size)
         {
+            rand = new Random();
             tiles = new List<Tile>();
             bombPositions = new List<int>();
             boardSize = size;
@@ -75,7 +77,6 @@ namespace minesweeper
          */
         private void PlaceBombs()
         {
-            Random rand = new Random();
             int amount = boardSize == 10 ? 10 : 80;
 
             while (amount > 0)
@@ -103,21 +104,85 @@ namespace minesweeper
         {
             foreach (int bomb in bombPositions)
             {
-                tiles[bomb].around++;
-                tiles[bomb + 1].around++;
-                tiles[bomb + boardSize].around++;
-                tiles[bomb + boardSize + 1].around++;
-                tiles[bomb + boardSize - 1].around++;
-                
-                if (bomb - 1 >= 0)
-                    tiles[bomb - 1].around++;
-                if (bomb - boardSize >= 0)
-                    tiles[bomb - boardSize].around++;
-                if (bomb - boardSize + 1 >= 0)
-                    tiles[bomb - boardSize + 1].around++;
-                if (bomb - boardSize - 1 >= 0)
-                    tiles[bomb - boardSize - 1].around++;
+                tiles[bomb].around++; // So we won't open a bomb when (help) clearing
+                foreach (int tilePosition in SurroundingPositions(bomb))
+                {
+                    tiles[tilePosition].around++;
+                }
             }
+        }
+
+
+        /*
+         * Helps find all the surrounding tile-
+         * positions from a given position.
+         */
+        private List<int> SurroundingPositions(int position)
+        {
+            List<int> tilePositions = new List<int>();
+            
+            if (position+1 <= boardSize*boardSize)
+                tilePositions.Add(position+1);
+            if (position+boardSize <= boardSize*boardSize)
+                tilePositions.Add(position+boardSize);
+            if (position+boardSize+1 <= boardSize*boardSize)
+                tilePositions.Add(position+boardSize+1);
+            if (position+boardSize-1 <= boardSize*boardSize)
+                tilePositions.Add(position+boardSize-1);
+            
+            if (position - 1 >= 0)
+                tilePositions.Add(position-1);
+            if (position - boardSize >= 0)
+                tilePositions.Add(position-boardSize);
+            if (position - boardSize +1 >= 0)
+                tilePositions.Add(position-boardSize+1);
+            if (position - boardSize -1 >= 0)
+                tilePositions.Add(position-boardSize-1);
+
+            return tilePositions;
+        }
+
+
+        /*
+         * Turns over, and show surrounding bombs, for tiles
+         * played by the view. This will also turn over of
+         * surrounding tiles, so they too can show their nearby
+         * bombs.
+         */
+        public bool TurnTile(int tilePosition)
+        {
+            bool GameOver = false;
+            int maxHelp = rand.Next(1,5);
+
+            if (tiles[tilePosition].value)
+                GameOver = true;
+            else if (!tiles[tilePosition].turned )
+            {
+                tiles[tilePosition].turned = true;
+                foreach (int tp in SurroundingPositions(tilePosition))
+                {
+                    if (tiles[tilePosition].outer || maxHelp == 0)
+                        break;
+                    
+                    if (!tiles[tp].value)
+                    {
+                        tiles[tp].turned = true;
+                        maxHelp--;
+                    }
+                }
+            }
+
+            return GameOver;
+        }
+
+
+        /*
+         * Makes the user able to mark tiles,
+         * that is suspected to have a bomb.
+         */
+        public void MarkTile(int tilePosition)
+        {
+            tiles[tilePosition].marked = !tiles[tilePosition].marked;
         }
 
         

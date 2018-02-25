@@ -31,8 +31,8 @@ namespace minesweeper
             
             /*
              * Create a Board object and clear the console.
-             * Also set some typical values, like start-position
-             * for the cursor.
+             * We also create a Controls object, which handles
+             * the users navigations/actions.
              */
             Console.Clear();
             
@@ -52,15 +52,17 @@ namespace minesweeper
             while (!GameOver)
             {
                 Console.Clear();
+                
                 int br = 0;
                 foreach (Tile tile in board.GetTiles())
                 {
-                    if (tile.outer)
-                        Console.Write(" [O] ");
-                    else if (tile.value)
-                        Console.Write(" [B] ");
+                    
+                    if (tile.turned)
+                        Console.Write(" ["+tile.around+"] ");
+                    else if (tile.marked)
+                        Console.Write(" [M] ");
                     else
-                        Console.Write(" [" + tile.around + "] ");
+                        Console.Write(" [ ] ");
 
                     br++;
                     if (br == boardSize)
@@ -70,13 +72,56 @@ namespace minesweeper
                         br = 0;
                     }
                 }
+
+                Console.WriteLine();
+                Console.WriteLine("Press M to mark tiles. Press Q to quit.");
                 
                 Console.SetCursorPosition(cursor.xPosition, cursor.yPosition);
                 ConsoleKey keyPush = Console.ReadKey().Key;
-                cursor.CursorAction(keyPush);
+                
+                int keyAction = cursor.CursorAction(keyPush);
+                if (keyAction >= 0)
+                    GameOver = board.TurnTile(keyAction);
+                
+                if (keyPush == ConsoleKey.M)
+                    board.MarkTile(cursor.tilePosition);
+
+                if (keyPush == ConsoleKey.Q)
+                    break;
             }
 
-            Console.ReadLine();
+
+            
+            /*
+             * When the game is over, print out a little finish
+             * along with the complete turned tiles of the board
+             */
+            Console.Clear();
+            
+            int endBr = 0;
+            foreach (Tile tile in board.GetTiles())
+            {
+                    
+                if (tile.value)
+                    Console.Write(" [B] ");
+                else
+                    Console.Write(" ["+tile.around+"] ");
+
+                
+                
+                endBr++;
+                if (endBr == boardSize)
+                {
+                    Console.WriteLine();
+                    Console.WriteLine();
+                    endBr = 0;
+                }
+            }
+            
+            Console.WriteLine();
+            Console.WriteLine("Game Over! Press any key to exit..");
+            Console.SetCursorPosition(cursor.xPosition, cursor.yPosition);
+            Console.ReadKey();
         }
     }
 }
