@@ -8,32 +8,18 @@ namespace minesweeper
 {
     class Tile
     {
-        private Random rand;
-        public bool value { get; private set; }
-        public int position { get; private set; }
+        public bool value { get; set; }
+        public int position { get; }
         public bool turned { get; set; }
         public int  around { get; set; }
-        public bool outer { get; set; }
+        public bool outer { get; }
 
         public Tile(int position, bool outer = false)
         {
-            rand = new Random();
             turned = false;
+            around = 0;
             this.position = position;
-
-            if (outer == false)
-                SetValue();
-            else
-                this.value = false;
+            this.outer = outer;
         }
-
-        private void SetValue()
-        {
-            int thisVal = rand.Next(1, 11);
-            this.value = false;
-            if (thisVal == 1)
-                this.value = true;
-        }
-
     }
 }
