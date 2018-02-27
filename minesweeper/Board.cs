@@ -124,7 +124,7 @@ namespace minesweeper
         private List<int> SurroundingPositions(int position)
         {
             List<int> tilePositions = new List<int>();
-            int totalTiles = boardSize * boardSize;
+            int totalTiles = (boardSize * boardSize) -1;
             
             if (position+1 <= totalTiles)
                 tilePositions.Add(position+1);
@@ -169,8 +169,7 @@ namespace minesweeper
                 turnedTiles++;
                                 
                 List<int> turnThese = new List<int>();
-                turnThese.Add(tilePosition);
-                turnThese = RecursiveTurn(turnThese);
+                turnThese = RecursiveTurn(turnThese, tilePosition);
 
                 foreach (int i in turnThese)
                 {
@@ -199,19 +198,26 @@ namespace minesweeper
         }
 
 
-        private List<int> RecursiveTurn(List<int> turnThese)
+        private List<int> RecursiveTurn(List<int> turnThese, int position)
         {
-            List<int> turn = turnThese;
-            foreach (int i in turn)
+            List<int> turn = new List<int>();
+            turn.Add(position);
+            foreach (int i in SurroundingPositions(position))
             {
-                foreach (int tp in SurroundingPositions(i))
+                if (tiles[i].around == 0 && !tiles[i].marked && !tiles[i].value && !turn.Contains(i))
+                {
+                    turn.Add(i);
+                }
+                RecursiveTurn(turn, i);
+                /*foreach (int tp in SurroundingPositions(i))
                 {
                     if (tiles[tp].around == 0 && !tiles[tp].marked && !tiles[tp].value && !turn.Contains(tp))
                     {
                         turn.Add(tp);
+                        //RecursiveTurn(turn);
+                        break;
                     }
-                }   
-                RecursiveTurn(turn);
+                }   */
             }
 
             return turn;
