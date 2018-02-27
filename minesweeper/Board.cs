@@ -108,7 +108,7 @@ namespace minesweeper
         {
             foreach (int bomb in bombPositions)
             {
-                tiles[bomb].around++; // So we won't open a bomb when (help) clearing
+                tiles[bomb].around++; // TODO: Might be able to remove
                 foreach (int tilePosition in SurroundingPositions(bomb))
                 {
                     tiles[tilePosition].around++;
@@ -124,14 +124,15 @@ namespace minesweeper
         private List<int> SurroundingPositions(int position)
         {
             List<int> tilePositions = new List<int>();
+            int totalTiles = boardSize * boardSize;
             
-            if (position+1 <= boardSize*boardSize)
+            if (position+1 <= totalTiles)
                 tilePositions.Add(position+1);
-            if (position+boardSize <= boardSize*boardSize)
+            if (position + boardSize <= totalTiles)
                 tilePositions.Add(position+boardSize);
-            if (position+boardSize+1 <= boardSize*boardSize)
+            if (position + boardSize+1 <= totalTiles)
                 tilePositions.Add(position+boardSize+1);
-            if (position+boardSize-1 <= boardSize*boardSize)
+            if (position + boardSize-1 <= totalTiles)
                 tilePositions.Add(position+boardSize-1);
             
             if (position - 1 >= 0)
@@ -145,6 +146,9 @@ namespace minesweeper
 
             return tilePositions;
         }
+        
+        
+        
 
 
         /*
@@ -155,7 +159,7 @@ namespace minesweeper
         public int  TurnTile(int tilePosition)
         {
             int GameOver = -1;
-            int maxHelp = rand.Next(1,5);
+            //int maxHelp = rand.Next(1,5);
 
             if (tiles[tilePosition].value)
                 GameOver = 1;
@@ -163,7 +167,18 @@ namespace minesweeper
             {
                 tiles[tilePosition].turned = true;
                 turnedTiles++;
-                foreach (int tp in SurroundingPositions(tilePosition))
+                                
+                List<int> turnThese = new List<int>();
+                turnThese.Add(tilePosition);
+                turnThese = RecursiveTurn(turnThese);
+
+                foreach (int i in turnThese)
+                {
+                    tiles[i].turned = true;
+                }
+                
+                
+                /*foreach (int tp in SurroundingPositions(tilePosition))
                 {
                     if (tiles[tilePosition].outer || maxHelp == 0)
                         break;
@@ -174,13 +189,32 @@ namespace minesweeper
                         maxHelp--;
                         turnedTiles++;
                     }
-                }
+                }*/
 
                 if (turnedTiles + bombAmount == boardSize * boardSize)
                     GameOver = 2;
             }
 
             return GameOver;
+        }
+
+
+        private List<int> RecursiveTurn(List<int> turnThese)
+        {
+            List<int> turn = turnThese;
+            foreach (int i in turn)
+            {
+                foreach (int tp in SurroundingPositions(i))
+                {
+                    if (tiles[tp].around == 0 && !tiles[tp].marked && !tiles[tp].value && !turn.Contains(tp))
+                    {
+                        turn.Add(tp);
+                    }
+                }   
+                RecursiveTurn(turn);
+            }
+
+            return turn;
         }
 
 
