@@ -126,8 +126,10 @@ namespace minesweeper
         {
             List<int> tilePositions = new List<int>();
             int totalTiles = (boardSize * boardSize) -1;
+            int calc = (totalTiles + 1) % (position + 1);
+            Console.WriteLine(calc);
             
-            if (position+1 <= totalTiles && (totalTiles + 1) % (position + 1) != 0 ) // TODO: something fishy here
+            if (position+1 <= totalTiles && (totalTiles + 1) % (position + 1) != 0 || position == 0) // TODO: something fishy here
                 tilePositions.Add(position+1);
             if (position + boardSize <= totalTiles)
                 tilePositions.Add(position+boardSize);
