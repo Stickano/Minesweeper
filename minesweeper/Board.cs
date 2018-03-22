@@ -120,13 +120,14 @@ namespace minesweeper
         /*
          * Helps find all the surrounding tile-
          * positions from a given position.
+         * TODO: We got one of them bugs in this here snippet.
          */
         private List<int> SurroundingPositions(int position)
         {
             List<int> tilePositions = new List<int>();
             int totalTiles = (boardSize * boardSize) -1;
             
-            if (position+1 <= totalTiles)
+            if (position+1 <= totalTiles && (totalTiles + 1) % (position + 1) != 0 ) // TODO: something fishy here
                 tilePositions.Add(position+1);
             if (position + boardSize <= totalTiles)
                 tilePositions.Add(position+boardSize);
@@ -135,7 +136,7 @@ namespace minesweeper
             if (position + boardSize-1 <= totalTiles)
                 tilePositions.Add(position+boardSize-1);
             
-            if (position - 1 >= 0)
+            if (position - 1 >= 0 && (totalTiles + 1) % position != 0)
                 tilePositions.Add(position-1);
             if (position - boardSize >= 0)
                 tilePositions.Add(position-boardSize);
@@ -200,15 +201,15 @@ namespace minesweeper
 
         private List<int> RecursiveTurn(List<int> turnThese, int position)
         {
-            List<int> turn = new List<int>();
+            List<int> turn = turnThese;
             turn.Add(position);
             foreach (int i in SurroundingPositions(position))
             {
                 if (tiles[i].around == 0 && !tiles[i].marked && !tiles[i].value && !turn.Contains(i))
                 {
                     turn.Add(i);
+                    RecursiveTurn(turn, i);
                 }
-                RecursiveTurn(turn, i);
                 /*foreach (int tp in SurroundingPositions(i))
                 {
                     if (tiles[tp].around == 0 && !tiles[tp].marked && !tiles[tp].value && !turn.Contains(tp))
