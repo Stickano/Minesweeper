@@ -48,13 +48,24 @@ namespace minesweeper
                 while (ySize-- > 0)
                 {
                     br++;
-                    bool outer = false;
+                    /*      Spaghetti!
+                     *          1
+                     *      ---------
+                     *      |       |  
+                     *    4 |   0   | 2
+                     *      |       |
+                     *      ---------
+                     *          3
+                     */
+                    int outer = 0;
                     if (line == 0)
-                        outer = true;
-                    else if (br == 1 || br == boardSize)
-                        outer = true;
+                        outer = 1;
+                    else if (br == boardSize)
+                        outer = 2;
                     else if (line + 1 == boardSize)
-                        outer = true;
+                        outer = 3;
+                    else if (br == 1)
+                        outer = 4;
                     
                     if (br == boardSize)
                     {
@@ -88,7 +99,7 @@ namespace minesweeper
                 int pos = rand.Next(1, (boardSize * boardSize));
                 Tile result = tiles.Find(t => t.position.Equals(pos));
                 
-                if (result.outer || result.value)
+                if (result.outer != 0 || result.value)
                     continue;
 
                 tiles[pos].value = true;
@@ -120,31 +131,29 @@ namespace minesweeper
         /*
          * Helps find all the surrounding tile-
          * positions from a given position.
-         * TODO: We got one of them bugs in this here snippet.
+         * TODO: SPaghetti in house!
          */
         private List<int> SurroundingPositions(int position)
         {
             List<int> tilePositions = new List<int>();
             int totalTiles = (boardSize * boardSize) -1;
-            int calc = (totalTiles + 1) % (position + 1);
-            Console.WriteLine(calc);
             
-            if (position+1 <= totalTiles && (totalTiles + 1) % (position + 1) != 0 || position == 0) // TODO: something fishy here
+            if (position+1 <= totalTiles && tiles[position].outer != 2) 
                 tilePositions.Add(position+1);
             if (position + boardSize <= totalTiles)
                 tilePositions.Add(position+boardSize);
-            if (position + boardSize+1 <= totalTiles)
+            if (position + boardSize+1 <= totalTiles && tiles[position].outer != 2) 
                 tilePositions.Add(position+boardSize+1);
-            if (position + boardSize-1 <= totalTiles)
+            if (position + boardSize-1 < totalTiles && tiles[position].outer != 4 && position != 0) 
                 tilePositions.Add(position+boardSize-1);
             
-            if (position - 1 >= 0 && (totalTiles + 1) % position != 0)
+            if (position - 1 >= 0 && tiles[position].outer != 4 && position != 90 && position != 380)
                 tilePositions.Add(position-1);
             if (position - boardSize >= 0)
                 tilePositions.Add(position-boardSize);
-            if (position - boardSize +1 >= 0)
+            if (position - boardSize +1 >= 0 && tiles[position].outer != 2)
                 tilePositions.Add(position-boardSize+1);
-            if (position - boardSize -1 >= 0)
+            if (position - boardSize -1 >= 0 && tiles[position].outer != 4 && position != 90 && position != 380)
                 tilePositions.Add(position-boardSize-1);
 
             return tilePositions;
@@ -156,14 +165,12 @@ namespace minesweeper
 
         /*
          * Turns over, and show surrounding bombs, for tiles
-         * played by the view. This will also turn over a couple of
-         * surrounding tiles, so they too can show their nearby bombs.
+         * played by the view. This will also call the RecursiveTurn,
+         * which will turn surrounding tiles.
          */
         public int  TurnTile(int tilePosition)
         {
             int GameOver = -1;
-            //int maxHelp = rand.Next(1,5);
-
             if (tiles[tilePosition].value)
                 GameOver = 1;
             else if (!tiles[tilePosition].turned )
@@ -177,21 +184,8 @@ namespace minesweeper
                 foreach (int i in turnThese)
                 {
                     tiles[i].turned = true;
+                    turnedTiles++;
                 }
-                
-                
-                /*foreach (int tp in SurroundingPositions(tilePosition))
-                {
-                    if (tiles[tilePosition].outer || maxHelp == 0)
-                        break;
-                    
-                    if (!tiles[tp].value && !tiles[tp].marked && !tiles[tp].turned)
-                    {
-                        tiles[tp].turned = true;
-                        maxHelp--;
-                        turnedTiles++;
-                    }
-                }*/
 
                 if (turnedTiles + bombAmount == boardSize * boardSize)
                     GameOver = 2;
@@ -201,26 +195,24 @@ namespace minesweeper
         }
 
 
+        /*  
+         * Will recursively turn the surround tiles, 
+         * if the conditions match. 
+         */
         private List<int> RecursiveTurn(List<int> turnThese, int position)
         {
             List<int> turn = turnThese;
-            turn.Add(position);
+            if(!turn.Contains(position))
+                turn.Add(position);
+
             foreach (int i in SurroundingPositions(position))
             {
-                if (tiles[i].around == 0 && !tiles[i].marked && !tiles[i].value && !turn.Contains(i))
+                if (!tiles[i].marked && !tiles[i].value && !turn.Contains(i))
                 {
                     turn.Add(i);
-                    RecursiveTurn(turn, i);
+                    if (tiles[i].around == 0)
+                        RecursiveTurn(turn, i);
                 }
-                /*foreach (int tp in SurroundingPositions(i))
-                {
-                    if (tiles[tp].around == 0 && !tiles[tp].marked && !tiles[tp].value && !turn.Contains(tp))
-                    {
-                        turn.Add(tp);
-                        //RecursiveTurn(turn);
-                        break;
-                    }
-                }   */
             }
 
             return turn;

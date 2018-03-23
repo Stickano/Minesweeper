@@ -94,8 +94,24 @@ namespace minesweeper
                 
                 Console.SetCursorPosition(cursor.xPosition, cursor.yPosition);
                 ConsoleKey keyPush = Console.ReadKey().Key;
-                
                 int keyAction = cursor.CursorAction(keyPush);
+
+                //while (keyAction == -1) // TODO: This some none-working BS.
+                //{
+                //    //if (board.GetTiles()[cursor.tilePosition].turned)
+                //    //    Console.Write(board.GetTiles()[cursor.tilePosition].around);
+
+                //    Console.SetCursorPosition(cursor.xPosition, cursor.yPosition);
+                //    keyPush = Console.ReadKey().Key;
+                //    keyAction = cursor.CursorAction(keyPush);
+                    
+                //    if (keyPush == ConsoleKey.M)
+                //        board.MarkTile(cursor.tilePosition);
+
+                //    if (keyPush == ConsoleKey.Q)
+                //        GameOver = true;
+                //}
+
                 if (keyAction >= 0)
                 {
                     int response = board.TurnTile(keyAction);
@@ -109,7 +125,7 @@ namespace minesweeper
                     board.MarkTile(cursor.tilePosition);
 
                 if (keyPush == ConsoleKey.Q)
-                    break;
+                    GameOver = true;
             }
 
 

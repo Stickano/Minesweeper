@@ -12,10 +12,10 @@ namespace minesweeper
         public int position { get; }
         public bool turned { get; set; }
         public int  around { get; set; }
-        public bool outer { get; }
+        public int outer { get; }
         public bool marked { get; set; }
 
-        public Tile(int position, bool outer = false)
+        public Tile(int position, int outer = 0)
         {
             turned = false;
             marked = false;
