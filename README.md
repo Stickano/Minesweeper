@@ -13,4 +13,4 @@ The turned tiles will be colored according to how many bombs are detected nearby
 <p align="center"><img src="https://github.com/Stickano/Minesweeper/blob/master/preview.png"/></p>
 
 ##### Pro Tip!
-The logic makes it so that you never get a bomb in the outer most tiles of the board - No help clearing is available for outer most tiles either. It's a good way to get started with the game though. Just clear the outer most tiles and move towards the center. 
+The logic makes it so that you never get a bomb in the outer most tiles of the board. It's a good way to get started with the game though. Just clear the outer most tiles and move towards the center. 
